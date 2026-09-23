@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+sdk/cpp/build/
+*.o
+*.so.bak
