@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <math.h>
+
+extern "C" __attribute__((visibility("default"))) void* const _force_libm_ref = (void*)sincosf;
 
 #define ANDROID_BITMAP_RESULT_SUCCESS            0
 #define ANDROID_BITMAP_RESULT_BAD_PARAMETER    -1

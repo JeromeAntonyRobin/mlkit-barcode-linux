@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstring>
+#include <climits>
 #include <map>
 
 namespace mlkit {
@@ -163,10 +164,25 @@ MLKitScanner::MLKitScanner(const std::string& repo_root_in)
             root = env_root;
         } else if (access("models/barhopper_options_official.bin", F_OK) == 0) {
             root = ".";
+        } else if (access("../models/barhopper_options_official.bin", F_OK) == 0) {
+            root = "..";
         } else if (access("../../models/barhopper_options_official.bin", F_OK) == 0) {
             root = "../..";
         } else {
-            root = "/home/econsystems/econ/gmlqrkitport";
+            char exe_buf[PATH_MAX] = {0};
+            if (readlink("/proc/self/exe", exe_buf, sizeof(exe_buf) - 1) > 0) {
+                std::string exe_path = exe_buf;
+                size_t pos = exe_path.rfind('/');
+                if (pos != std::string::npos) {
+                    std::string dir = exe_path.substr(0, pos);
+                    if (access((dir + "/models/barhopper_options_official.bin").c_str(), F_OK) == 0) root = dir;
+                    else if (access((dir + "/../models/barhopper_options_official.bin").c_str(), F_OK) == 0) root = dir + "/..";
+                    else if (access((dir + "/../../models/barhopper_options_official.bin").c_str(), F_OK) == 0) root = dir + "/../..";
+                }
+            }
+            if (root.empty()) {
+                root = "/home/econsystems/econ/gmlqrkitport";
+            }
         }
     }
 

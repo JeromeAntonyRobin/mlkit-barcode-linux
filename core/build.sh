@@ -33,7 +33,7 @@ $CXX -shared -fPIC -O3 \
     "$SCRIPT_DIR/shim/jni_mock.cpp" \
     "$SCRIPT_DIR/shim/got_hook.cpp" \
     -o "$TARGET_DIR/libandroid_shim.so" \
-    -ldl
+    -ldl -lm
 
 # Create Bionic compatibility symlinks
 (cd "$TARGET_DIR" && ln -sf libandroid_shim.so liblog.so && ln -sf libandroid_shim.so libjnigraphics.so)
@@ -51,7 +51,7 @@ if [ "$ARCH" = "x86_64" ] && command -v aarch64-linux-gnu-g++ >/dev/null 2>&1; t
         "$SCRIPT_DIR/shim/jni_mock.cpp" \
         "$SCRIPT_DIR/shim/got_hook.cpp" \
         -o "$ARM64_DIR/libandroid_shim.so" \
-        -ldl
+        -ldl -lm
     (cd "$ARM64_DIR" && ln -sf libandroid_shim.so liblog.so && ln -sf libandroid_shim.so libjnigraphics.so)
     echo "[+] Cross-compiled Jetson Orin Nano shim: $ARM64_DIR/libandroid_shim.so"
 fi
