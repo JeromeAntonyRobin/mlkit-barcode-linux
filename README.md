@@ -64,8 +64,10 @@ gmlqrkitport/
 │
 ├── samples/                           # Evaluation & validation sample images
 └── docs/                              # Deep-dive technical documentation
-    ├── ARCHITECTURE.md                # Architecture, GOT hooks & ELF patch details
-    └── JETSON_DEPLOYMENT.md           # Instructions for Jetson Orin Nano deployment
+    ├── ARCHITECTURE.md                # Architecture, GOT hooks & translation layer design
+    ├── PORTING_GUIDE.md               # Complete engineering guide & binary porting internals
+    ├── JETSON_DEPLOYMENT.md           # Instructions for Jetson Orin Nano deployment
+    └── LEGAL_AND_COMPLIANCE.md        # Commercialization, Apache 2.0 license & legal checklist
 ```
 
 ---
