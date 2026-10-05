@@ -122,3 +122,10 @@ make -j$(nproc)
 
 ## Jetson Orin Nano Deployment
 See [docs/JETSON_DEPLOYMENT.md](file:///home/econsystems/econ/gmlqrkitport/docs/JETSON_DEPLOYMENT.md) for step-by-step setup on JetPack 5 / 6.
+
+---
+
+## License & Compliance
+This project is licensed under the **Apache License, Version 2.0** — see the [LICENSE](file:///home/econsystems/econ/gmlqrkitport/LICENSE) and [NOTICE](file:///home/econsystems/econ/gmlqrkitport/NOTICE) files for details.
+
+For detailed information regarding commercial deployment, closed-source integration, and third-party attribution, refer to [docs/LEGAL_AND_COMPLIANCE.md](file:///home/econsystems/econ/gmlqrkitport/docs/LEGAL_AND_COMPLIANCE.md).

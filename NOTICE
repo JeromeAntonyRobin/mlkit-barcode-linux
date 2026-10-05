@@ -1,0 +1,12 @@
+Google ML Kit Barcode & QR Code Engine for Linux & NVIDIA Jetson
+Copyright (c) 2026 e-con Systems & Contributors.
+
+This product includes software developed by Google LLC (Google ML Kit Barcode Scanning)
+licensed under the Apache License, Version 2.0.
+
+Modifications & Additions:
+- Developed native Bionic-to-Glibc translation layer (libandroid_shim.so).
+- Neutralized dynamic versioning tags (DT_VERDEF/DT_VERDEFNUM) in libbarhopper_v3_patched.so
+  for native Linux x86_64 and NVIDIA Jetson AArch64 dynamic linker compatibility.
+- Implemented C++ and Python native zero-copy camera pipeline APIs.
+- Extracted and structured embedded TensorFlow Lite models and neural pipeline architecture.
