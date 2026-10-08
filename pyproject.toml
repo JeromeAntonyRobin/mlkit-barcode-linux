@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlkit-barcode-linux"
+version = "1.0.0"
+description = "Native Google ML Kit Barcode & QR Code Engine for Linux & NVIDIA Jetson"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "e-con Systems", email = "info@econsystems.com"}
+]
+dependencies = [
+    "numpy>=1.20.0",
+    "opencv-python>=4.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/JeromeAntonyRobin/mlkit-barcode-linux"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sdk*"]

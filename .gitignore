@@ -1,6 +1,27 @@
+# Python virtual environments & bytecode
 .venv/
+env/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Distribution & packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# C++ build artifacts
 sdk/cpp/build/
 *.o
+*.obj
 *.so.bak
+*.log
+
+# Editor & IDE files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

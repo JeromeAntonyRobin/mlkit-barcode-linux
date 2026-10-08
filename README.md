@@ -39,7 +39,8 @@ gmlqrkitport/
 │           └── main.cpp               # C++ test runner & benchmark demo
 │
 ├── core/                              # Native Engine & Bionic Translation Layer
-│   ├── build.sh                       # One-click build script
+│   ├── Makefile                       # Shim compilation rules
+│   ├── build.sh                       # Wrapper build script
 │   ├── shim/                          # Bionic-to-Glibc translation layer source
 │   │   ├── android_log_shim.cpp       # Android logcat -> stdout/syslog
 │   │   ├── android_graphics_shim.cpp  # Android Bitmap -> direct memory pointer
@@ -47,7 +48,7 @@ gmlqrkitport/
 │   │   └── got_hook.cpp               # Dynamic Global Offset Table hook for stdio
 │   ├── tools/                         # Maintenance and patching utilities
 │   │   ├── generate_options_proto.py  # Generates barhopper options protobuf
-│   │   └── patch_arm64_elf.py         # DT_VERNEED neutralizer for Jetson Orin Nano
+│   │   └── patch_elf.py               # ELF patching & DT_VERNEED neutralizer CLI
 │   └── lib/                           # Prebuilt / compiled engine binaries
 │       ├── x86_64/                    # Ubuntu x86_64 binaries
 │       └── arm64-v8a/                 # NVIDIA Jetson ARM64 binaries
@@ -62,29 +63,53 @@ gmlqrkitport/
 │   ├── benchmark_accuracy.py          # Benchmark suite
 │   └── baselines/                     # Baseline comparative scripts
 │
-├── samples/                           # Evaluation & validation sample images
-└── docs/                              # Deep-dive technical documentation
-    ├── ARCHITECTURE.md                # Architecture, GOT hooks & translation layer design
-    ├── PORTING_GUIDE.md               # Complete engineering guide & binary porting internals
-    ├── JETSON_DEPLOYMENT.md           # Instructions for Jetson Orin Nano deployment
-    └── LEGAL_AND_COMPLIANCE.md        # Commercialization, Apache 2.0 license & legal checklist
+├── samples/                           # Evaluation samples & applications
+│   ├── scan_camera.py                 # Live camera / V4L2 scanner application
+│   └── sample_qr.png                  # Sample test images
+│
+├── docs/                              # Deep-dive technical documentation
+│   ├── ARCHITECTURE.md                # Architecture, GOT hooks & translation layer design
+│   ├── PORTING_GUIDE.md               # Complete engineering guide & binary porting internals
+│   ├── JETSON_DEPLOYMENT.md           # Instructions for Jetson Orin Nano deployment
+│   └── LEGAL_AND_COMPLIANCE.md        # Commercialization, Apache 2.0 license & legal checklist
+│
+├── Makefile                           # Top-level orchestrator (make build, make test, etc.)
+└── pyproject.toml                     # Standard Python package specification
 ```
 
 ---
 
-## Quickstart (Python)
+## Quickstart
 
-### 1. Install Dependencies
+### 1. Build All Targets
+To compile both the translation shim and the C++ demo binary in one step:
 ```bash
-pip install -r requirements.txt
+make build
 ```
 
-### 2. Run Test Scanner
+### 2. Run Comprehensive Tests
+Run both Python and C++ test runners against the sample barcode:
 ```bash
-python3 google_mlkit_scanner.py
+make test
 ```
 
-### 3. Python Code Example
+---
+
+## Python Usage
+
+### Installation
+Install dependencies or install the package in editable mode:
+```bash
+pip install -e .
+```
+
+### Run Live Camera Scanner
+Scan QR codes and barcodes live from USB / CSI / V4L2 cameras with real-time OpenCV visualization:
+```bash
+python3 samples/scan_camera.py --camera 0
+```
+
+### Python API Example
 ```python
 import cv2
 import os
@@ -105,20 +130,13 @@ os._exit(0)
 
 ---
 
-## Quickstart (C++)
+## C++ Usage
 
-### 1. Build Native Library & Demo
+### Run Pre-built Demo Binary
 ```bash
-cd sdk/cpp
-mkdir -p build && cd build
-cmake ..
-make -j$(nproc)
-```
-
-### 2. Run Demo
-```bash
-./mlkit_demo
-```
+make run-cpp
+# or directly:
+./sdk/cpp/build/mlkit_demo samples/sample_qr.png
 
 ---
 
