@@ -99,7 +99,35 @@ The following table documents the complete licensing inventory for all third-par
 
 ---
 
-## 6. Ready-to-Use Compliance Boilerplate
+## 6. Advanced Legal & Enterprise Operational Considerations
+
+When deploying this native port within commercial enterprise camera products, embedded devices, or OEM firmware, the following legal and operational boundary lines apply:
+
+### 6.1 Neural Network Weights: Copyright vs. Patent Boundary
+* **Code vs. Weights:** Open-source licenses (like Apache 2.0) were historically drafted around source and object code. The intellectual property classification of trained neural network weights (`.tflite` / `.bin` matrices) is an evolving legal domain.
+* **Apache 2.0 Scope:** Because Google distributed the neural network models directly within the official Apache 2.0 AAR distribution container, the model buffers fall under the expansive definitions of *"Object form"* and *"Work"* defined in Section 1 of the License.
+* **Section 3 Patent Grant:** Google grants a perpetual, royalty-free, worldwide patent license covering any patent claims embodied in the Work. This provides legal protection against patent infringement claims regarding the proprietary multi-scale anchor box generation, feature extraction, and autoregressive sequence decoding methods implemented in the models.
+
+### 6.2 Trademark vs. Compatibility Claiming (Section 6 Compliance)
+Care must be exercised regarding product branding, hardware silkscreening, and marketing literature:
+* ❌ **High Risk (Infringement):** Branding a commercial offering as *"Google ML Kit for Jetson Camera"* or *"Google Barcode Hardware Engine"*. This infringes Google LLC's trademarks and breaches Section 6 of Apache 2.0.
+* ✅ **Zero Risk (Permitted):** Naming the product *"e-con Systems Smart Barcode Vision Stack"*, and stating in technical specifications or datasheets: *"Engine powered by Google ML Kit Barcode components under the Apache License, Version 2.0."*
+
+### 6.3 Google Play Services Telemetry & Analytics Bypass (Air-Gapped Operation)
+* **Standard Android Behavior:** On Android OS, Google ML Kit frequently bundles diagnostic telemetry (Firebase Analytics / Google Play Services heartbeat) to track SDK adoption and operational statistics.
+* **Linux Port Isolation:** In this native Linux port, there is **no Android framework, no Google Play Services APK daemon, and no background network service**. The shared library is completely air-gapped:
+  - It cannot phone home, collect telemetry, or transmit camera frames across network interfaces.
+* **Regulatory Compliance:** This air-gapped, zero-telemetry architecture is essential for enterprise deployments with stringent regulatory and privacy mandates, including **GDPR, HIPAA, SOC 2, and defense/industrial security compliance**.
+
+### 6.4 The "No Additional Restrictions" Clause
+Under Section 4 of Apache 2.0:
+* You **may** charge commercial licensing fees for your hardware and software packages.
+* You **may** keep your proprietary application logic, camera ring-buffer drivers, and custom shims closed-source.
+* You **may not** apply additional legal terms or technological restrictions that diminish the end-user's rights granted by the Apache 2.0 license regarding the third-party components themselves (e.g., you cannot legally forbid a client from extracting the Apache 2.0 component for independent use). You simply license *your proprietary software and hardware*, while passing through the Apache 2.0 notice for the bundled third-party library.
+
+---
+
+## 7. Ready-to-Use Compliance Boilerplate
 
 You can paste the text block below directly into your product's user manual, `README`, or a file deployed to `/usr/share/doc/<your-product>/THIRD_PARTY_LICENSES.txt`:
 
