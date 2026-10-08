@@ -2,6 +2,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define ANDROID_LOG_UNKNOWN 0
 #define ANDROID_LOG_DEFAULT 1
@@ -15,38 +19,61 @@
 
 extern "C" {
 
-#include <errno.h>
 int* __errno() {
     return &errno;
 }
 
-
-// Android Bionic __sF standard I/O streams table
-
-#include <stdio.h>
-
 // Android Bionic stdin/stdout/stderr table (__sF)
-// In Android Bionic, stdin is &__sF[0], stdout is &__sF[1], stderr is &__sF[2]
 struct BionicFile {
-    unsigned char* _p;
-    int _r;
-    int _w;
-    short _flags;
-    short _file;
-    // pad to 128 bytes
     char _pad[256];
 };
 static BionicFile sF_table[3];
 void* __sF = sF_table;
 
+// POSIX Direct-FD stdio bypass to prevent glibc invalid handle abort
+size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream) {
+    if (!ptr || size == 0 || nmemb == 0) return 0;
+    ssize_t written = write(2, ptr, size * nmemb);
+    return (written > 0) ? (written / size) : 0;
+}
+
+int fputs(const char* s, FILE* stream) {
+    if (!s) return 0;
+    return write(2, s, strlen(s));
+}
+
+int fputc(int c, FILE* stream) {
+    unsigned char ch = (unsigned char)c;
+    return write(2, &ch, 1);
+}
+
 int fflush(FILE* stream) {
-    if (stream == (FILE*)&sF_table[0]) return ::fflush(stdin);
-    if (stream == (FILE*)&sF_table[1]) return ::fflush(stdout);
-    if (stream == (FILE*)&sF_table[2]) return ::fflush(stderr);
     return 0;
 }
 
+int fprintf(FILE* stream, const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    int res = vdprintf(2, fmt, ap);
+    va_end(ap);
+    return res;
+}
 
+int vfprintf(FILE* stream, const char* fmt, va_list ap) {
+    return vdprintf(2, fmt, ap);
+}
+
+int fstat(int fd, struct stat *buf) {
+    return fstatat(fd, "", buf, AT_EMPTY_PATH);
+}
+
+int stat(const char *pathname, struct stat *buf) {
+    return fstatat(AT_FDCWD, pathname, buf, 0);
+}
+
+int lstat(const char *pathname, struct stat *buf) {
+    return fstatat(AT_FDCWD, pathname, buf, AT_SYMLINK_NOFOLLOW);
+}
 
 int __android_log_write(int prio, const char *tag, const char *text) {
     const char *prio_str = "INFO";
@@ -54,7 +81,7 @@ int __android_log_write(int prio, const char *tag, const char *text) {
     else if (prio >= ANDROID_LOG_ERROR) prio_str = "ERROR";
     else if (prio <= ANDROID_LOG_DEBUG) prio_str = "DEBUG";
 
-    return fprintf(stderr, "[AndroidLog:%s][%s] %s\n", prio_str, tag ? tag : "default", text ? text : "");
+    return dprintf(2, "[AndroidLog:%s][%s] %s\n", prio_str, tag ? tag : "default", text ? text : "");
 }
 
 int __android_log_print(int prio, const char *tag, const char *fmt, ...) {
@@ -72,23 +99,16 @@ int __android_log_vprint(int prio, const char *tag, const char *fmt, va_list ap)
     return __android_log_write(prio, tag, buf);
 }
 
-// Android system property mock
 int __system_property_get(const char *name, char *value) {
-    if (value) {
-        value[0] = '\0';
-    }
+    if (value) value[0] = '\0';
     return 0;
 }
 
 void android_set_abort_message(const char* msg) {
-    fprintf(stderr, "[AndroidAbortMessage] %s\n", msg ? msg : "");
+    dprintf(2, "[AndroidAbortMessage] %s\n", msg ? msg : "");
 }
 
-// Missing internal Google symbols (Gemmlowp, Gcov, LeakCheck)
-bool _ZN6tflite16UseGemmlowpOnX86Ev() {
-    return false;
-}
-
+bool _ZN6tflite16UseGemmlowpOnX86Ev() { return false; }
 void _ZN4absl19leak_check_internal12DoIgnoreLeakEPKv(const void* ptr) {}
 bool _ZN4base33HasDuplicateGlobalSymbolsInternalEv() { return false; }
 void __gcov_dump() {}
@@ -99,40 +119,8 @@ void* OPENSSL_memory_alloc(size_t size) { return malloc(size); }
 void OPENSSL_memory_free(void* ptr) { free(ptr); }
 size_t OPENSSL_memory_get_size(void* ptr) { return 0; }
 
-}
-
-// Safe process termination to prevent Bionic stdio dtor collision
 void safe_exit(int code) {
-    _Exit(code);
+    _exit(code);
 }
 
-extern "C" {
-
-size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream) {
-    if (stream >= (FILE*)&sF_table[0] && stream <= (FILE*)&sF_table[2]) {
-        return ::fwrite(ptr, size, nmemb, stderr);
-    }
-    return ::fwrite(ptr, size, nmemb, stream);
-}
-
-int fputs(const char* s, FILE* stream) {
-    if (stream >= (FILE*)&sF_table[0] && stream <= (FILE*)&sF_table[2]) {
-        return ::fputs(s, stderr);
-    }
-    return ::fputs(s, stream);
-}
-
-int fputc(int c, FILE* stream) {
-    if (stream >= (FILE*)&sF_table[0] && stream <= (FILE*)&sF_table[2]) {
-        return ::fputc(c, stderr);
-    }
-    return ::fputc(c, stream);
-}
-
-}
-
-__attribute__((constructor)) static void init_bionic_stdio() {
-    memcpy(&sF_table[0], stdin, sizeof(FILE));
-    memcpy(&sF_table[1], stdout, sizeof(FILE));
-    memcpy(&sF_table[2], stderr, sizeof(FILE));
 }
