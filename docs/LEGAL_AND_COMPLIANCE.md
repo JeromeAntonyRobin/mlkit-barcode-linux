@@ -49,6 +49,14 @@ Creating a lightweight translation layer (`libandroid_shim.so`) to translate sta
 ### 3.2 API Interface Protection (*Google LLC v. Oracle America, Inc., 2021*)
 In 2021, the United States Supreme Court confirmed that declaring code, API signatures, and function binding conventions (such as JNI signatures like `Java_com_google_android_libraries_barhopper_BarhopperV3_recognizeBitmapNative`) are fair use when reimplemented to facilitate software interoperability.
 
+### 3.3 JNI Header Licensing (Android AOSP Apache 2.0 vs. Oracle OpenJDK GPLv2)
+Standard desktop Java environments use OpenJDK's `jni.h`, which carries Oracle's copyright and a GPLv2 license with the "Classpath" exception. Although legally safe due to the exception, the word "GNU" can trigger false-positive warnings in automated corporate compliance scanners (e.g., Black Duck, FOSSA).
+
+To ensure 100% license consistency across the entire repository:
+* The JNI header ([`core/shim/jni.h`](file:///home/econsystems/econ/gmlqrkitport/core/shim/jni.h)) is sourced directly from the **Android Open Source Project (AOSP) / Android NDK**, which is licensed under the **Apache License, Version 2.0**.
+* The legacy Oracle `jni_md.h` was eliminated, as Android's header natively targets modern portable C99 `<stdint.h>` types.
+* **Result:** Zero GPL text exists in the source tree; all native translation headers are strictly Apache 2.0.
+
 ---
 
 ## 4. Mandatory Compliance Checklist for Commercial Products

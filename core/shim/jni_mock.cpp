@@ -4,6 +4,10 @@
 #include <cstdint>
 #include "jni.h"
 
+// Android AOSP jni.h compatibility aliases
+typedef JNINativeInterface JNINativeInterface_;
+typedef _JNIEnv JNIEnv_;
+
 // Concrete buffer structure to mock java.nio.ByteBuffer
 struct MockDirectBuffer {
     void* address;
