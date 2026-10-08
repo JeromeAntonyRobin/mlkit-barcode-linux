@@ -55,9 +55,13 @@ def _decode_point(data):
     fields = _parse_protobuf(data)
     x = 0; y = 0
     for f_num, w_type, val in fields:
-        if f_num == 1: x = val
-        elif f_num == 2: y = val
+        # Convert unsigned 64-bit two's complement varint to signed 32-bit int
+        if val >= (1 << 31):
+            val = val - (1 << 64) if val >= (1 << 63) else val - (1 << 32)
+        if f_num == 1: x = int(val)
+        elif f_num == 2: y = int(val)
     return (x, y)
+
 
 def _decode_barcode(data):
     fields = _parse_protobuf(data)
